@@ -1,0 +1,65 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit vulnerabilities
+        # Audit level high means it will fail if any High/Critical vulnerabilities are found
+        run: npm audit --audit-level=high
+
+      - name: Scan for secrets
+        run: |
+          # Basic check for obvious secret files that shouldn't be here
+          if find . -maxdepth 2 -name ".env*" -not -name ".env.example" | grep .; then
+            echo "Error: .env files found in repository!"
+            exit 1
+          fi
+          if find . -maxdepth 2 -name "*.pem" -o -name "*.key" | grep .; then
+            echo "Error: Key files found in repository!"
+            exit 1
+          fi
+          echo "No obvious secret files found."
+
+  build-and-deploy:
+    needs: security-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
+          branch: gh-pages
