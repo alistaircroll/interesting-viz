@@ -8,9 +8,15 @@ const LaunchScreen = () => {
 
     useEffect(() => {
         if (cameraGranted) {
+            // If we are mounting and it's already true, maybe user refreshed or nav'd back?
+            // User says "skip to MainMenu immediately". 
+            // We can check if it just happened or was already true.
+            // Using a short timeout is safer for UI transition, but 3000 is long.
+            // Let's use 500ms to allow text to flash if new, or 0 if immediate?
+            // Let's assume 100ms.
             const timer = setTimeout(() => {
                 setCurrentScreen('MENU');
-            }, 3000);
+            }, 100);
             return () => clearTimeout(timer);
         }
     }, [cameraGranted, setCurrentScreen]);

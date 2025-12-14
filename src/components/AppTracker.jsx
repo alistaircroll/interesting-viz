@@ -4,6 +4,7 @@ import { FaceMesh } from '@mediapipe/face_mesh';
 import { Pose } from '@mediapipe/pose';
 import { Camera } from '@mediapipe/camera_utils';
 import { useStore } from '../store';
+import GestureEngine from '../utils/GestureEngine';
 
 const AppTracker = () => {
     const videoRef = useRef(null);
@@ -20,8 +21,7 @@ const AppTracker = () => {
     const setHandTilt = useStore((state) => state.setHandTilt);
     const setInteraction = useStore((state) => state.setInteraction);
 
-    // Refs for previous values
-    const prevHandsRef = useRef({});
+
 
     useEffect(() => {
         // --- Initialize Hands ---
@@ -68,13 +68,17 @@ const AppTracker = () => {
                     if (videoRef.current) {
                         setCameraGranted(true);
                         // Send frame to all trackers
-                        // Parallelize for best performance, though JS is single threaded
-                        // MediaPipe might handle some internal threading
-                        await Promise.all([
-                            hands.send({ image: videoRef.current }),
-                            faceMesh.send({ image: videoRef.current }),
-                            pose.send({ image: videoRef.current })
-                        ]);
+                        try {
+                            // Prioritize Hands for now as it's critical for navigation
+                            await hands.send({ image: videoRef.current });
+
+                            // Temporarily disable Face and Pose to isolate 'No Hands' issue
+                            // detection can be heavy.
+                            // await faceMesh.send({ image: videoRef.current });
+                            // await pose.send({ image: videoRef.current });
+                        } catch (error) {
+                            console.error("Tracking Error:", error);
+                        }
                     }
                 },
                 width: 640,
@@ -91,118 +95,39 @@ const AppTracker = () => {
         };
     }, []);
 
+    // Gesture Engine Ref
+    const gestureEngine = useRef(new GestureEngine());
+
     // --- Hand Logic (Legacy + New) ---
     const onHandResults = (results) => {
         if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+            // Use store setters to reset
             setHands([]);
             setHandHeight(0.5);
             setInteraction({ pointingDirection: 0 });
             return;
         }
 
-        const landmarks = results.multiHandLandmarks;
+        // Delegate to Engine
+        const output = gestureEngine.current.process(results.multiHandLandmarks);
 
-        // Process Hands for Debug & Logic
-        const processedHands = landmarks.map((hand, index) => {
-            const wrist = hand[0];
-            const indexTip = hand[8];
-            const middleTip = hand[12];
-            const ringTip = hand[16];
-            const pinkyTip = hand[20];
+        // Update Store
+        setHands(output.hands);
 
-            // 1. Coordinates (0-1)
-            const x = wrist.x;
-            const y = wrist.y;
+        // Update Stats
+        setHandHeight(output.stats.handHeight);
+        setHandSpan(output.stats.handSpan);
+        setHandTilt(output.stats.handTilt);
 
-            // 2. Polar Coords & Angle (Maintained from HandTracker)
-            const cx = 0.5;
-            const cy = 0.5;
-            const dx_center = x - cx;
-            const dy_center = y - cy;
-            const rawDist = Math.sqrt(dx_center * dx_center + dy_center * dy_center);
-            const distance = Math.min(100, Math.round((rawDist / 0.5) * 100));
-
-            // Angle (North=0, East=90...)
-            let angle = Math.round((Math.atan2(dy_center, dx_center) * 180 / Math.PI) + 90);
-            if (angle < 0) angle += 360;
-
-            // 3. Gesture Recognition
-            const middleMCP = hand[9];
-            const scale = Math.sqrt(Math.pow(middleMCP.x - wrist.x, 2) + Math.pow(middleMCP.y - wrist.y, 2));
-            const refScale = scale > 0 ? scale : 0.1;
-
-            const dist = (pt) => Math.sqrt(Math.pow(pt.x - wrist.x, 2) + Math.pow(pt.y - wrist.y, 2));
-            const dIndex = dist(indexTip);
-            const dMiddle = dist(middleTip);
-            const dRing = dist(ringTip);
-            const dPinky = dist(pinkyTip);
-            const avgCurl = (dMiddle + dRing + dPinky) / 3;
-
-            let gesture = "Unknown";
-            if (dIndex < 1.4 * refScale && avgCurl < 1.4 * refScale) {
-                gesture = "Fist";
-            } else if (dIndex > 1.6 * refScale && avgCurl < 1.4 * refScale) {
-                gesture = "Pointing";
-            } else if (avgCurl > 1.5 * refScale) {
-                gesture = "Open Palm";
-            }
-
-            // 4. Vector
-            const prev = prevHandsRef.current[index] || { x, y };
-            const vx = x - prev.x;
-            const vy = y - prev.y;
-            prevHandsRef.current[index] = { x, y };
-
-            return {
-                id: index,
-                gesture,
-                coords: { x: x.toFixed(3), y: y.toFixed(3) },
-                polar: { angle, distance },
-                vector: { dx: vx.toFixed(4), dy: vy.toFixed(4) }
-            };
-        });
-
-        setHands(processedHands);
-
-        // --- Store Interaction Logic (Legacy) ---
-        let count = landmarks.length;
-        let avgY = 0;
-        landmarks.forEach(hand => avgY += hand[0].y);
-        avgY /= count;
-        setHandHeight(avgY);
-
-        if (landmarks.length === 2) {
-            const sortedHands = [...landmarks].sort((a, b) => a[0].x - b[0].x);
-            const h1 = sortedHands[0][0];
-            const h2 = sortedHands[1][0];
-            const dx = h2.x - h1.x;
-            const dy = h2.y - h1.y;
-            setHandSpan(Math.sqrt(dx * dx + dy * dy));
-            setHandTilt(Math.atan2(dy, dx));
-        } else {
-            setHandTilt(0);
-        }
-
-        // Interaction (Spin/Density)
-        let newPointingDirection = 0;
-        let densityChange = 0;
-        processedHands.forEach(hand => {
-            if (hand.gesture === "Pointing") {
-                const rawHand = landmarks[hand.id];
-                const wrist = rawHand[0];
-                const indexTip = rawHand[8];
-                newPointingDirection = indexTip.x < wrist.x ? 1 : -1;
-            } else if (hand.gesture === "Fist") {
-                densityChange = 0.01;
-            } else if (hand.gesture === "Open Palm") {
-                densityChange = -0.01;
-            }
-        });
-
+        // Update Interaction
         const currentDensity = useStore.getState().interaction.density;
-        let newDensity = currentDensity + densityChange;
+        let newDensity = currentDensity + output.interaction.densityChange;
         newDensity = Math.max(0.0, Math.min(1.0, newDensity));
-        setInteraction({ pointingDirection: newPointingDirection, density: newDensity });
+
+        setInteraction({
+            pointingDirection: output.interaction.pointingDirection,
+            density: newDensity
+        });
     };
 
     // --- Face Logic ---
