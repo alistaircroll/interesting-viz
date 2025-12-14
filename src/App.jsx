@@ -55,9 +55,14 @@ function App() {
   const currentScreen = useStore((state) => state.currentScreen);
   const setCurrentScreen = useStore((state) => state.setCurrentScreen);
 
+  // Check URL param for debug=on
+  const showDebug = new URLSearchParams(window.location.search).get('debug') === 'on';
+
   return (
     <div style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}>
       <AppTracker />
+
+      {showDebug && <DebugUI />}
 
       {currentScreen === 'LAUNCH' && <LaunchScreen />}
 
@@ -65,7 +70,7 @@ function App() {
 
       {currentScreen === 'SPINNING_RING' && (
         <>
-          <DebugUI />
+          {!showDebug && <DebugUI />}
 
           {/* Back to Menu Button */}
           <div style={{ position: 'absolute', bottom: 30, right: 30, zIndex: 30 }}>

@@ -48,7 +48,8 @@ const MainMenu = () => {
                 position: 'relative',
                 display: 'flex',
                 justifyContent: 'space-between', // Left and Right columns
-                padding: '40px'
+                padding: '40px',
+                boxSizing: 'border-box'
             }}>
                 {/* Left Column (4 Squares) */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
