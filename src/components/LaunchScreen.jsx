@@ -1,19 +1,20 @@
 import React, { useEffect } from 'react';
 import { useStore } from '../store';
-import { Check } from 'lucide-react';
+import { Check, AlertTriangle } from 'lucide-react';
 
+/**
+ * Initial launch screen that waits for camera permission.
+ * Displays success state when granted, error state if denied,
+ * and transitions to main menu automatically on success.
+ * @component
+ */
 const LaunchScreen = () => {
     const cameraGranted = useStore((state) => state.cameraGranted);
+    const cameraError = useStore((state) => state.cameraError);
     const setCurrentScreen = useStore((state) => state.setCurrentScreen);
 
     useEffect(() => {
         if (cameraGranted) {
-            // If we are mounting and it's already true, maybe user refreshed or nav'd back?
-            // User says "skip to MainMenu immediately". 
-            // We can check if it just happened or was already true.
-            // Using a short timeout is safer for UI transition, but 3000 is long.
-            // Let's use 500ms to allow text to flash if new, or 0 if immediate?
-            // Let's assume 100ms.
             const timer = setTimeout(() => {
                 setCurrentScreen('MENU');
             }, 100);
@@ -23,74 +24,95 @@ const LaunchScreen = () => {
 
     return (
         <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            display: 'flex',
-            color: 'white'
+            position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.2)'
         }}>
-            {/* Left 2/3: Title & Instructions (Overlaid on Video) */}
-            <div style={{
-                width: '66.66%',
-                height: '100%',
+            <div className="glass-panel" style={{
+                padding: '60px',
+                borderRadius: '24px',
+                textAlign: 'center',
+                maxWidth: '800px',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'center',
                 alignItems: 'center',
-                padding: '40px',
-                background: 'rgba(0,0,0,0.4)' // Dim the video a bit
+                gap: '32px'
             }}>
-                <h1 style={{ fontSize: '4rem', marginBottom: '20px' }}>InterestingViz</h1>
-                <p style={{ fontSize: '1.5rem', textAlign: 'center', maxWidth: '600px' }}>
-                    Control things with your body. <br />
-                    To get started, give this app permission to use your camera. <br />
-                    <span style={{ fontSize: '1rem', color: '#aaa', marginTop: '10px', display: 'block' }}>
-                        To protect privacy, you'll need to do this each time you launch the app.
-                    </span>
-                </p>
-            </div>
+                <h1 style={{ font: 'var(--text-h1)', margin: 0, color: 'var(--color-scan-cyan)' }}>
+                    InterestingViz
+                </h1>
 
-            {/* Right 1/3: Status */}
-            <div style={{
-                width: '33.33%',
-                height: '100%',
-                background: '#111',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-            }}>
-                {cameraGranted ? (
-                    <div style={{ animation: 'fadeIn 0.5s' }}>
+                <p style={{ font: 'var(--text-body-large)', color: 'var(--color-text-secondary)', margin: 0 }}>
+                    Control reality with your body. <br />
+                    Please enable camera access to begin.
+                </p>
+
+                {cameraError ? (
+                    <div style={{ animation: 'fadeIn 0.5s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
                         <div style={{
-                            width: '150px',
-                            height: '150px',
+                            width: '120px', height: '120px',
                             borderRadius: '50%',
-                            background: '#0f0',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            boxShadow: '0 0 50px #0f0'
+                            background: 'rgba(255, 100, 100, 0.1)',
+                            border: '4px solid #ff6b6b',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 0 30px rgba(255, 100, 100, 0.5)'
                         }}>
-                            <Check size={100} color="black" strokeWidth={3} />
+                            <AlertTriangle size={64} color="#ff6b6b" strokeWidth={2} />
                         </div>
-                        <p style={{ textAlign: 'center', marginTop: '20px', color: '#0f0' }}>Access Granted</p>
+                        <span style={{ font: 'var(--text-h3)', color: '#ff6b6b' }}>CAMERA DENIED</span>
+                        <p style={{ font: 'var(--text-body)', color: 'var(--color-text-secondary)', maxWidth: '400px' }}>
+                            {cameraError}
+                        </p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            style={{
+                                padding: '16px 32px',
+                                borderRadius: '50px',
+                                border: '2px solid var(--color-scan-cyan)',
+                                background: 'transparent',
+                                color: 'var(--color-scan-cyan)',
+                                font: 'var(--text-body-large)',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            Try Again
+                        </button>
+                    </div>
+                ) : cameraGranted ? (
+                    <div style={{ animation: 'fadeIn 0.5s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                        <div style={{
+                            width: '120px', height: '120px',
+                            borderRadius: '50%',
+                            background: 'transparent',
+                            border: '4px solid var(--color-lime-flash)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            boxShadow: '0 0 30px var(--color-lime-flash)'
+                        }}>
+                            <Check size={64} color="var(--color-lime-flash)" strokeWidth={4} />
+                        </div>
+                        <span style={{ font: 'var(--text-h3)', color: 'var(--color-lime-flash)' }}>ACCESS GRANTED</span>
                     </div>
                 ) : (
-                    <div style={{ textAlign: 'center', color: '#555' }}>
+                    <div style={{
+                        opacity: 0.6,
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px'
+                    }}>
                         <div style={{
-                            width: '100px',
-                            height: '100px',
-                            border: '5px dashed #555',
+                            width: '80px', height: '80px',
                             borderRadius: '50%',
-                            margin: '0 auto',
-                            marginBottom: '20px'
+                            border: '4px dashed var(--color-text-secondary)',
+                            animation: 'spin 4s linear infinite'
                         }} />
-                        <p>Waiting for camera...</p>
+                        <span style={{ font: 'var(--text-body)' }}>Waiting for camera...</span>
                     </div>
                 )}
             </div>
+
+            <style>{`
+                @keyframes spin { 100% { transform: rotate(360deg); } }
+                @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+            `}</style>
         </div>
     );
 };
