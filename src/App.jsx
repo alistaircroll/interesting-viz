@@ -1,8 +1,11 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import HandTracker from './components/HandTracker';
+import AppTracker from './components/AppTracker';
 import ParticleSystem from './components/ParticleSystem';
+import LaunchScreen from './components/LaunchScreen';
+import MainMenu from './components/MainMenu';
+import MenuSquare from './components/MenuSquare';
 import { useStore } from './store';
 
 const DebugUI = () => {
@@ -49,22 +52,43 @@ const DebugUI = () => {
 };
 
 function App() {
+  const currentScreen = useStore((state) => state.currentScreen);
+  const setCurrentScreen = useStore((state) => state.setCurrentScreen);
+
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#000' }}>
-      <HandTracker />
-      <DebugUI />
+    <div style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}>
+      <AppTracker />
 
-      <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
-        <color attach="background" args={['#111']} />
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} />
+      {currentScreen === 'LAUNCH' && <LaunchScreen />}
 
-        <Suspense fallback={null}>
-          <ParticleSystem />
-        </Suspense>
+      {currentScreen === 'MENU' && <MainMenu />}
 
-        <OrbitControls enableZoom={false} enablePan={false} />
-      </Canvas>
+      {currentScreen === 'SPINNING_RING' && (
+        <>
+          <DebugUI />
+
+          {/* Back to Menu Button */}
+          <div style={{ position: 'absolute', bottom: 30, right: 30, zIndex: 30 }}>
+            <MenuSquare
+              label="MENU"
+              onClick={() => setCurrentScreen('MENU')}
+              style={{ width: '100px', height: '100px', border: '4px solid white' }}
+            />
+          </div>
+
+          <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
+            <color attach="background" args={['#111']} />
+            <ambientLight intensity={0.5} />
+            <pointLight position={[10, 10, 10]} />
+
+            <Suspense fallback={null}>
+              <ParticleSystem />
+            </Suspense>
+
+            <OrbitControls enableZoom={false} enablePan={false} />
+          </Canvas>
+        </>
+      )}
     </div>
   );
 }

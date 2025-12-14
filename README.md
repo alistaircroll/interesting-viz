@@ -1,9 +1,9 @@
-# Interactive Camera Particle System
+# InterestingViz
 
-A real-time, gesture-controlled 3D particle system built with React, Three.js, and MediaPipe.
+A multi-visualization platform controlled by hand gestures, face tracking, and body pose, built with React, Three.js, and MediaPipe.
 
 ## Overview
-This application uses your computer's webcam to track your hand movements and control a 3D ring of particles in real-time. You can spin, tilt, resize, and reshape the particle ring using intuitive hand gestures.
+This application uses your computer's webcam to track your movements and control various 3D visualizations. The first available visualization is a 3D ring of particles you can spin, tilt, and reshape.
 
 ## Requirements
 - **Webcam**: Required for hand tracking.
