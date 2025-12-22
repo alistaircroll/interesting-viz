@@ -38,11 +38,22 @@ const LaunchScreen = () => {
                 alignItems: 'center',
                 gap: '32px'
             }}>
-                <h1 style={{ font: 'var(--text-h1)', margin: 0, color: 'var(--color-scan-cyan)' }}>
+                <h1 style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 'var(--font-size-gestural-h1)',
+                    fontWeight: 'var(--font-weight-bold)',
+                    margin: 0,
+                    color: 'var(--color-brand-blue)'
+                }}>
                     InterestingViz
                 </h1>
 
-                <p style={{ font: 'var(--text-body-large)', color: 'var(--color-text-secondary)', margin: 0 }}>
+                <p style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 'var(--font-size-gestural-body)',
+                    color: 'var(--color-text-secondary)',
+                    margin: 0
+                }}>
                     Control reality with your body. <br />
                     Please enable camera access to begin.
                 </p>
@@ -51,29 +62,42 @@ const LaunchScreen = () => {
                     <div style={{ animation: 'fadeIn 0.5s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
                         <div style={{
                             width: '120px', height: '120px',
-                            borderRadius: '50%',
-                            background: 'rgba(255, 100, 100, 0.1)',
-                            border: '4px solid #ff6b6b',
+                            borderRadius: 'var(--radius-lg)',
+                            background: 'rgba(224, 122, 95, 0.1)',
+                            border: '4px solid var(--color-brand-coral)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 0 30px rgba(255, 100, 100, 0.5)'
+                            boxShadow: 'var(--shadow-pop)'
                         }}>
-                            <AlertTriangle size={64} color="#ff6b6b" strokeWidth={2} />
+                            <AlertTriangle size={64} color="var(--color-brand-coral)" strokeWidth={2} />
                         </div>
-                        <span style={{ font: 'var(--text-h3)', color: '#ff6b6b' }}>CAMERA DENIED</span>
-                        <p style={{ font: 'var(--text-body)', color: 'var(--color-text-secondary)', maxWidth: '400px' }}>
+                        <span style={{
+                            fontFamily: 'var(--font-sans)',
+                            fontSize: 'var(--font-size-2xl)',
+                            fontWeight: 'var(--font-weight-semibold)',
+                            color: 'var(--color-brand-coral)'
+                        }}>CAMERA DENIED</span>
+                        <p style={{
+                            fontFamily: 'var(--font-sans)',
+                            fontSize: 'var(--font-size-lg)',
+                            color: 'var(--color-text-secondary)',
+                            maxWidth: '400px'
+                        }}>
                             {cameraError}
                         </p>
                         <button
                             onClick={() => window.location.reload()}
                             style={{
                                 padding: '16px 32px',
-                                borderRadius: '50px',
-                                border: '2px solid var(--color-scan-cyan)',
-                                background: 'transparent',
-                                color: 'var(--color-scan-cyan)',
-                                font: 'var(--text-body-large)',
+                                borderRadius: 'var(--radius-lg)',
+                                border: '2px solid var(--color-ink)',
+                                background: 'var(--color-brand-blue)',
+                                color: 'var(--color-text-inverse)',
+                                fontFamily: 'var(--font-sans)',
+                                fontSize: 'var(--font-size-lg)',
+                                fontWeight: 'var(--font-weight-semibold)',
                                 cursor: 'pointer',
-                                transition: 'all 0.2s'
+                                boxShadow: 'var(--shadow-pop-sm)',
+                                transition: 'all var(--transition-fast)'
                             }}
                         >
                             Try Again
@@ -83,15 +107,20 @@ const LaunchScreen = () => {
                     <div style={{ animation: 'fadeIn 0.5s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
                         <div style={{
                             width: '120px', height: '120px',
-                            borderRadius: '50%',
+                            borderRadius: 'var(--radius-lg)',
                             background: 'transparent',
-                            border: '4px solid var(--color-lime-flash)',
+                            border: '4px solid var(--color-brand-sage)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: '0 0 30px var(--color-lime-flash)'
+                            boxShadow: 'var(--shadow-pop)'
                         }}>
-                            <Check size={64} color="var(--color-lime-flash)" strokeWidth={4} />
+                            <Check size={64} color="var(--color-brand-sage)" strokeWidth={4} />
                         </div>
-                        <span style={{ font: 'var(--text-h3)', color: 'var(--color-lime-flash)' }}>ACCESS GRANTED</span>
+                        <span style={{
+                            fontFamily: 'var(--font-sans)',
+                            fontSize: 'var(--font-size-2xl)',
+                            fontWeight: 'var(--font-weight-semibold)',
+                            color: 'var(--color-brand-sage)'
+                        }}>ACCESS GRANTED</span>
                     </div>
                 ) : (
                     <div style={{
@@ -100,11 +129,11 @@ const LaunchScreen = () => {
                     }}>
                         <div style={{
                             width: '80px', height: '80px',
-                            borderRadius: '50%',
+                            borderRadius: 'var(--radius-lg)',
                             border: '4px dashed var(--color-text-secondary)',
                             animation: 'spin 4s linear infinite'
                         }} />
-                        <span style={{ font: 'var(--text-body)' }}>Waiting for camera...</span>
+                        <span style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--font-size-lg)' }}>Waiting for camera...</span>
                     </div>
                 )}
             </div>

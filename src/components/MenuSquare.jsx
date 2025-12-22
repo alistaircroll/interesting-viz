@@ -27,8 +27,8 @@ const MenuSquare = ({ label, onClick, style, size = 'large' }) => {
 
     // Size Config
     const SIZES = {
-        large: { w: 320, h: 140, r: 70 },
-        small: { w: 180, h: 80, r: 40 }
+        large: { w: 320, h: 140, r: 8 },
+        small: { w: 180, h: 80, r: 8 }
     };
     const { w, h, r } = SIZES[size] || SIZES.large;
 
@@ -153,20 +153,26 @@ const MenuSquare = ({ label, onClick, style, size = 'large' }) => {
     const baseStyle = {
         width: `${w}px`,
         height: `${h}px`,
-        borderRadius: `${r}px`,
-        border: 'none',
+        borderRadius: 'var(--radius-lg)',
+        border: '2px solid var(--color-ink)',
         background: isActive
-            ? 'linear-gradient(135deg, var(--color-scan-cyan) 0%, var(--color-plasma-violet) 100%)'
-            : 'var(--color-deep-space-translucent)',
-        boxShadow: isActive ? '0 0 30px var(--color-scan-cyan)' : 'none',
+            ? 'var(--color-brand-blue)'
+            : 'var(--color-gestural-surface)',
+        boxShadow: isHover
+            ? '8px 8px 0px var(--color-ink)'
+            : isActive
+                ? '4px 4px 0px var(--color-ink)'
+                : 'var(--shadow-pop)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
         cursor: 'pointer',
-        transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.27), background 0.3s, box-shadow 0.3s',
-        transform: isHover ? 'scale(1.1)' : 'scale(1)',
-        color: 'var(--color-text-primary)',
+        transition: 'transform var(--transition-normal), background var(--transition-normal), box-shadow var(--transition-normal)',
+        transform: isHover ? 'translate(-3px, -3px) scale(1.02)' : 'translate(0, 0)',
+        color: isActive ? 'var(--color-text-inverse)' : 'var(--color-ink)',
         overflow: 'visible',
         ...style
     };
@@ -190,9 +196,9 @@ const MenuSquare = ({ label, onClick, style, size = 'large' }) => {
                 <rect
                     x="2" y="2" width={w} height={h} rx={r} ry={r}
                     fill="none"
-                    stroke={isActive ? "white" : "var(--color-scan-cyan)"}
+                    stroke={isActive ? "white" : "var(--color-ink)"}
                     strokeWidth="2"
-                    strokeOpacity={isActive ? 1 : 0.5}
+                    strokeOpacity={isActive ? 1 : 0.3}
                 />
 
                 <rect
@@ -210,7 +216,7 @@ const MenuSquare = ({ label, onClick, style, size = 'large' }) => {
                 />
             </svg>
 
-            {/* Ghost Hand Cursor (Glowy Blob) */}
+            {/* Ghost Hand Cursor */}
             <div style={{
                 position: 'absolute',
                 left: 0,
@@ -218,15 +224,15 @@ const MenuSquare = ({ label, onClick, style, size = 'large' }) => {
                 transform: `translate(${hoverState.x - 40}px, ${hoverState.y - 40}px)`,
                 opacity: hoverState.opacity,
                 pointerEvents: 'none',
-                transition: 'opacity 0.2s',
-                zIndex: 10,
-                filter: 'drop-shadow(0 0 10px var(--color-scan-cyan))'
+                transition: 'opacity var(--transition-fast)',
+                zIndex: 10
             }}>
                 <div style={{
                     width: '80px', height: '80px',
                     borderRadius: '50%',
-                    background: 'rgba(0, 240, 255, 0.3)',
-                    border: '2px solid var(--color-scan-cyan)',
+                    background: 'rgba(5, 130, 202, 0.3)',
+                    border: '3px solid var(--color-text-inverse)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                     backdropFilter: 'blur(4px)'
                 }} />
             </div>
@@ -234,9 +240,13 @@ const MenuSquare = ({ label, onClick, style, size = 'large' }) => {
             <span style={{
                 zIndex: 1,
                 textTransform: 'uppercase',
-                font: size === 'small' ? 'var(--text-body-large)' : 'var(--text-h3)',
+                fontFamily: 'var(--font-sans)',
+                fontSize: size === 'small' ? 'var(--font-size-xl)' : 'var(--font-size-3xl)',
+                fontWeight: 'var(--font-weight-bold)',
                 letterSpacing: '0.05em',
-                textAlign: 'center'
+                textAlign: 'center',
+                lineHeight: 1.2,
+                whiteSpace: 'pre-line'
             }}>
                 {label}
             </span>

@@ -6,6 +6,8 @@ import ParticleSystem from './components/ParticleSystem';
 import LaunchScreen from './components/LaunchScreen';
 import MainMenu from './components/MainMenu';
 import MenuSquare from './components/MenuSquare';
+import InstructionsOverlay from './components/InstructionsOverlay';
+import ExitButton from './components/ExitButton';
 import { useStore } from './store';
 
 const DebugUI = () => {
@@ -37,7 +39,7 @@ const DebugUI = () => {
         minWidth: '280px',
         maxWidth: '300px'
       }}>
-        <h3 style={{ margin: 0, color: 'var(--color-scan-cyan)', fontSize: '1.2em' }}>HANDS</h3>
+        <h3 style={{ margin: 0, color: 'var(--color-brand-blue)', fontSize: '1.2em' }}>HANDS</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.9em' }}>
           <span style={{ opacity: 0.7 }}>Span:</span> <strong>{handSpan.toFixed(2)}</strong>
           <span style={{ opacity: 0.7 }}>Tilt:</span> <strong>{(handTilt * 180 / Math.PI).toFixed(0)}°</strong>
@@ -46,7 +48,7 @@ const DebugUI = () => {
         </div>
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px' }}>
-          <div style={{ color: 'var(--color-plasma-violet)', marginBottom: '8px', fontWeight: 'bold' }}>DETECTED ({hands.length})</div>
+          <div style={{ color: 'var(--color-brand-coral)', marginBottom: '8px', fontWeight: 'bold' }}>DETECTED ({hands.length})</div>
           {hands.map((hand, i) => (
             <div key={i} style={{ marginBottom: '8px', fontSize: '0.9em', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '8px' }}>
               <div style={{ fontWeight: 'bold', color: 'white' }}>#{i + 1} {hand.gesture}</div>
@@ -75,10 +77,10 @@ const DebugUI = () => {
         maxWidth: '300px',
         textAlign: 'right'
       }}>
-        <h3 style={{ margin: 0, color: 'var(--color-lime-flash)', fontSize: '1.2em' }}>ANALYSIS</h3>
+        <h3 style={{ margin: 0, color: 'var(--color-brand-sage)', fontSize: '1.2em' }}>ANALYSIS</h3>
 
         <div style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '12px' }}>
-          <div style={{ color: 'var(--color-lime-flash)', marginBottom: '8px', fontWeight: 'bold' }}>FACES ({faces.length})</div>
+          <div style={{ color: 'var(--color-brand-sage)', marginBottom: '8px', fontWeight: 'bold' }}>FACES ({faces.length})</div>
           {faces.length > 0 && faces[0].expressions && (
             <div style={{ fontSize: '0.9em' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -98,7 +100,7 @@ const DebugUI = () => {
         </div>
 
         <div>
-          <div style={{ color: '#a0f', marginBottom: '8px', fontWeight: 'bold' }}>POSES ({poses.length})</div>
+          <div style={{ color: 'var(--color-brand-coral)', marginBottom: '8px', fontWeight: 'bold' }}>POSES ({poses.length})</div>
           {poses.length > 0 && <div style={{ fontSize: '0.9em', opacity: 0.8 }}>Pose Detected</div>}
         </div>
       </div>
@@ -114,7 +116,7 @@ function App() {
   const showDebug = new URLSearchParams(window.location.search).get('debug') === 'on';
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#000', position: 'relative' }}>
+    <div style={{ width: '100vw', height: '100vh', background: 'transparent', position: 'relative' }}>
       <AppTracker />
 
       {showDebug && <DebugUI />}
@@ -124,16 +126,19 @@ function App() {
       {currentScreen === 'MENU' && <MainMenu />}
 
       {currentScreen === 'SPINNING_RING' && (
-        <>
-          {/* Back to Menu Button - Bottom Right */}
-          <div style={{ position: 'absolute', bottom: 40, right: 40, zIndex: 30 }}>
-            <MenuSquare
-              label="EXIT"
-              size="small"
-              onClick={() => setCurrentScreen('MENU')}
-              style={{ width: '180px', height: '80px' }}
-            />
-          </div>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: '#000'
+        }}>
+          {/* Instructions overlay - shows when no hands detected */}
+          <InstructionsOverlay />
+
+          {/* Exit Button - Low opacity until hand approaches */}
+          <ExitButton onClick={() => setCurrentScreen('MENU')} />
 
           {/* Transparent Canvas for AR feel */}
           <Canvas gl={{ alpha: true }} camera={{ position: [0, 0, 10], fov: 60 }}>
@@ -147,7 +152,7 @@ function App() {
 
             <OrbitControls enableZoom={false} enablePan={false} />
           </Canvas>
-        </>
+        </div>
       )}
     </div>
   );

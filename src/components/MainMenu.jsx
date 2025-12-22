@@ -18,43 +18,56 @@ const MainMenu = () => {
     };
 
     return (
-        <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
 
-            {/* Top 30% - Header Area */}
+            {/* Header - Positioned at top, overlaying content */}
             <div style={{
-                height: '30%',
-                width: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                position: 'relative',
-                zIndex: 10
+                zIndex: 10,
+                padding: 'var(--space-4)',
+                paddingTop: 'var(--space-6)',
+                background: 'linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 70%, transparent 100%)'
             }}>
-                <div className="glass-panel" style={{
-                    padding: '24px 48px',
-                    borderRadius: '100px',
-                    textAlign: 'center'
+                <h1 style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 'var(--font-size-4xl)',
+                    fontWeight: 'var(--font-weight-bold)',
+                    margin: 0,
+                    color: 'var(--color-ink)',
+                    letterSpacing: '-0.02em'
                 }}>
-                    <h1 style={{ font: 'var(--text-h2)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                        CHOOSE VISUALIZATION
-                    </h1>
-                    <p style={{ font: 'var(--text-body)', color: 'var(--color-text-secondary)', marginTop: '8px', marginBottom: 0 }}>
-                        Hold hand over option to select
-                    </p>
-                </div>
+                    InterestingViz
+                </h1>
+                <p style={{
+                    fontFamily: 'var(--font-sans)',
+                    fontSize: 'var(--font-size-xl)',
+                    fontWeight: 'var(--font-weight-semibold)',
+                    color: 'var(--color-brand-blue)',
+                    marginTop: 'var(--space-2)',
+                    marginBottom: 0
+                }}>
+                    Hold your palm over a button to select
+                </p>
             </div>
 
-            {/* Bottom 70% - Buttons Area */}
+            {/* Buttons Area - Full height with top padding for header */}
             <div style={{
-                height: '70%',
+                height: '100%',
                 width: '100%',
-                padding: '0 80px',
+                padding: '100px 80px 40px 80px',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'center' // Vertically center within the 70% height
+                alignItems: 'center'
             }}>
                 {/* Left Column */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {MENU_ITEMS.slice(0, 4).map((item) => (
                         <MenuSquare
                             key={item.id}
@@ -70,7 +83,7 @@ const MainMenu = () => {
                 </div>
 
                 {/* Right Column */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {MENU_ITEMS.slice(4, 8).map((item) => (
                         <MenuSquare
                             key={item.id}

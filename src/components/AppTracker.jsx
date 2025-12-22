@@ -235,9 +235,9 @@ const AppTracker = () => {
             return {
                 ...baseStyle,
                 left: 0,
-                bottom: 0,
+                top: 0,
                 width: '100%',
-                height: '70%',
+                height: '100%',
                 zIndex: 0,
             };
         } else {
